@@ -37,34 +37,49 @@
                                         <hr />
 
                                         <form method="post" action="/admin/order/update" class="row">
-                                            <input type="hidden" name="id" value="${order.id}" />
 
-                                            <div class="mb-3 col-12 col-md-6">
-                                                <label class="form-label">Order ID</label>
-                                                <input class="form-control" value="${order.id}" disabled />
-                                            </div>
+                                            <%-- ✅ nếu bật Spring Security CSRF thì cần token --%>
+                                                <input type="hidden" name="${_csrf.parameterName}"
+                                                    value="${_csrf.token}" />
 
-                                            <div class="mb-3 col-12 col-md-6">
-                                                <label class="form-label">Status</label>
-                                                <select class="form-select" name="status" required>
-                                                    <option value="NEW" ${order.status=='NEW' ? 'selected' : '' }>NEW
-                                                    </option>
-                                                    <option value="CONFIRMED" ${order.status=='CONFIRMED' ? 'selected'
-                                                        : '' }>CONFIRMED</option>
-                                                    <option value="SHIPPING" ${order.status=='SHIPPING' ? 'selected'
-                                                        : '' }>SHIPPING</option>
-                                                    <option value="DONE" ${order.status=='DONE' ? 'selected' : '' }>DONE
-                                                    </option>
-                                                    <option value="CANCELED" ${order.status=='CANCELED' ? 'selected'
-                                                        : '' }>CANCELED</option>
-                                                </select>
-                                            </div>
+                                                <input type="hidden" name="id" value="${order.id}" />
 
-                                            <div class="mb-4 col-12">
-                                                <button type="submit" class="btn btn-warning">Update</button>
-                                                <a href="/admin/order/${order.id}"
-                                                    class="btn btn-secondary ms-2">Back</a>
-                                            </div>
+                                                <div class="mb-3 col-12 col-md-6">
+                                                    <label class="form-label">Order ID</label>
+                                                    <input class="form-control" value="${order.id}" disabled />
+                                                </div>
+
+                                                <div class="mb-3 col-12 col-md-6">
+                                                    <label class="form-label">Status</label>
+                                                    <select class="form-select" name="status" required>
+                                                        <option value="NEW" ${order.status=='NEW' ? 'selected' : '' }>
+                                                            NEW</option>
+
+                                                        <option value="CONFIRMED" ${order.status=='CONFIRMED'
+                                                            ? 'selected' : '' }>
+                                                            CONFIRMED
+                                                        </option>
+
+                                                        <option value="SHIPPING" ${order.status=='SHIPPING' ? 'selected'
+                                                            : '' }>
+                                                            SHIPPING
+                                                        </option>
+
+                                                        <option value="DONE" ${order.status=='DONE' ? 'selected' : '' }>
+                                                            DONE</option>
+
+                                                        <option value="CANCELED" ${order.status=='CANCELED' ? 'selected'
+                                                            : '' }>
+                                                            CANCELED
+                                                        </option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="mb-4 col-12">
+                                                    <button type="submit" class="btn btn-warning">Update</button>
+                                                    <a href="/admin/order/${order.id}"
+                                                        class="btn btn-secondary ms-2">Back</a>
+                                                </div>
                                         </form>
 
                                     </div>

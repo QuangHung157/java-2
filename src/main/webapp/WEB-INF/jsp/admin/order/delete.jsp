@@ -31,7 +31,11 @@
 
                         <form method="post" action="/admin/order/delete">
                             <input type="hidden" name="id" value="${id}" />
-                            <button class="btn btn-danger">Confirm</button>
+
+
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
+                            <button type="submit" class="btn btn-danger">Confirm</button>
                             <a href="/admin/order" class="btn btn-secondary ms-2">Back</a>
                         </form>
 

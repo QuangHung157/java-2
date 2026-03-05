@@ -1,12 +1,16 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
   <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+    <c:set var="ZALO_PHONE" value="0987654321" />
+    <c:set var="HOTLINE_NUMBER" value="02471069999" />
+    <c:set var="MESSENGER_LINK" value="https://m.me/khuat.hung.900" />
+
     <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
       <div class="container py-5">
         <div class="pb-4 mb-4" style="border-bottom: 1px solid rgba(226, 175, 24, 0.5) ;">
           <div class="row g-4">
             <div class="col-lg-3">
-              <a href="#">
+              <a href="${pageContext.request.contextPath}/" class="text-decoration-none">
                 <h1 class="text-primary mb-0">Laptopshop</h1>
                 <p class="text-secondary mb-0">Quanghung</p>
               </a>
@@ -18,30 +22,59 @@
           <div class="col-lg-3 col-md-6">
             <div class="footer-item">
               <h4 class="text-light mb-3">Quality is our top priority</h4>
+              <p class="text-white-50 mb-0">Trusted laptops, professional consulting, reliable service.</p>
             </div>
           </div>
 
           <div class="col-lg-3 col-md-6">
             <div class="d-flex flex-column text-start footer-item">
               <h4 class="text-light mb-3">Shop Info</h4>
-              <a class="btn-link" href="">About Us</a>
+              <a class="btn-link" href="${pageContext.request.contextPath}/about">About Us</a>
+              <a class="btn-link" href="${pageContext.request.contextPath}/products">Products</a>
+              <a class="btn-link" href="${pageContext.request.contextPath}/policies">Policies</a>
             </div>
           </div>
 
           <div class="col-lg-3 col-md-6">
             <div class="d-flex flex-column text-start footer-item">
               <h4 class="text-light mb-3">Account</h4>
-              <a class="btn-link" href="">My Account</a>
+              <c:choose>
+                <c:when test="${pageContext.request.userPrincipal != null}">
+                  <a class="btn-link" href="${pageContext.request.contextPath}/account">My Account</a>
+                  <a class="btn-link" href="${pageContext.request.contextPath}/orders">My Orders</a>
+                  <a class="btn-link" href="${pageContext.request.contextPath}/logout">Logout</a>
+                </c:when>
+                <c:otherwise>
+                  <a class="btn-link" href="${pageContext.request.contextPath}/login">Login</a>
+                  <a class="btn-link" href="${pageContext.request.contextPath}/register">Register</a>
+                </c:otherwise>
+              </c:choose>
             </div>
           </div>
 
           <div class="col-lg-3 col-md-6">
             <div class="footer-item">
               <h4 class="text-light mb-3">Contact</h4>
-              <p>Author: QuangHung</p>
-              <p>Email: Quanghung@gmail.com</p>
+              <p class="mb-1">Author: QuangHung</p>
+              <p class="mb-1">Email: Quanghung@gmail.com</p>
+              <p class="mb-3">
+                Phone:
+                <a href="tel:${HOTLINE_NUMBER}" class="text-white-50 text-decoration-none">${HOTLINE_NUMBER}</a>
+              </p>
+
+              <div class="footer-social">
+                <a class="footer-social-btn zalo" target="_blank" rel="noopener" href="https://zalo.me/${ZALO_PHONE}">
+                  <i class="fa-solid fa-comment-dots"></i>
+                  <span>Zalo Chat</span>
+                </a>
+                <a class="footer-social-btn mess" target="_blank" rel="noopener" href="${MESSENGER_LINK}">
+                  <i class="fa-brands fa-facebook-messenger"></i>
+                  <span>Messenger</span>
+                </a>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -51,16 +84,114 @@
         <div class="row">
           <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
             <span class="text-light">
-              <a href="#"><i class="fas fa-copyright text-light me-2"></i>QuangHung</a>, All rights reserved.
+              <a href="${pageContext.request.contextPath}/" class="text-light text-decoration-none">
+                <i class="fas fa-copyright text-light me-2"></i>QuangHung
+              </a>, All rights reserved.
             </span>
           </div>
-          <div class="col-md-6 my-auto text-center text-md-end text-white">
+          <div class="col-md-6 my-auto text-center text-md-end text-white-50">
+            Spring Boot MVC • JSP • JSTL
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ====== AI CHAT WIDGET (OpenAI - Tool Calling) ====== -->
+    <div class="quick-contact">
+      <a class="qc-item qc-mess" target="_blank" rel="noopener" href="${MESSENGER_LINK}">
+        <i class="fa-brands fa-facebook-messenger"></i>
+        <span>Chat Messenger</span>
+      </a>
+      <a class="qc-item qc-zalo" target="_blank" rel="noopener" href="https://zalo.me/${ZALO_PHONE}">
+        <i class="fa-solid fa-comment-dots"></i>
+        <span>Chat Zalo</span>
+      </a>
+      <a class="qc-item qc-call" href="tel:${HOTLINE_NUMBER}">
+        <i class="fa-solid fa-phone"></i>
+        <span>${HOTLINE_NUMBER}</span>
+      </a>
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+      .footer-social {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap
+      }
+
+      .footer-social-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, .3)
+      }
+
+      .footer-social-btn.zalo {
+        background: #0068ff
+      }
+
+      .footer-social-btn.mess {
+        background: #0084ff
+      }
+
+      .quick-contact {
+        position: fixed;
+        left: 18px;
+        bottom: 80px;
+        z-index: 99998;
+        display: flex;
+        flex-direction: column;
+        gap: 10px
+      }
+
+      .qc-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        color: #111;
+        text-decoration: none;
+        padding: 10px 12px;
+        border-radius: 14px;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, .2)
+      }
+
+      .qc-item i {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff
+      }
+
+      .qc-mess i {
+        background: #0084ff
+      }
+
+      .qc-zalo i {
+        background: #0068ff
+      }
+
+      .qc-call i {
+        background: #ff7a00
+      }
+
+      @media(max-width:576px) {
+        .qc-item span {
+          display: none
+        }
+      }
+    </style>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
@@ -219,7 +350,7 @@
         <div class="ai-msg bot">
           Xin chào! 👋<br>
           Mình là AI tư vấn của LaptopShop.<br>
-          Bạn có thể hỏi: “Acer có mấy máy?”, “Máy rẻ nhất?”, “Đơn #12 sao rồi?”.
+          Bạn có thể hỏi: “Acer có mấy máy?”, “Máy rẻ nhất?”,”.
         </div>
       </div>
 
@@ -235,12 +366,12 @@
     </div>
 
     <script>
-      // CSRF từ Spring Security
       const AI_CSRF_HEADER = "${_csrf.headerName}";
       const AI_CSRF_TOKEN = "${_csrf.token}";
       const AI_BASE_URL = "${pageContext.request.contextPath}";
 
       let aiPending = false;
+      let aiLastSendAt = 0;
 
       function aiToggleChat() {
         const w = document.getElementById("aiChatWindow");
@@ -272,8 +403,22 @@
         body.scrollTop = body.scrollHeight;
       }
 
+      function aiGetSessionId() {
+        let sid = localStorage.getItem("laptopshop_chat_session_id");
+        if (!sid) {
+          if (window.crypto && crypto.randomUUID) sid = crypto.randomUUID();
+          else sid = "sid_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+          localStorage.setItem("laptopshop_chat_session_id", sid);
+        }
+        return sid;
+      }
+
       async function aiSendMessage() {
         if (aiPending) return;
+
+        const now = Date.now();
+        if (now - aiLastSendAt < 350) return;
+        aiLastSendAt = now;
 
         const input = document.getElementById("aiChatInput");
         const sendBtn = document.getElementById("aiChatSendBtn");
@@ -297,19 +442,31 @@
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 25000);
 
+          const payload = { message: message, sessionId: aiGetSessionId() };
+
           const res = await fetch(AI_BASE_URL + "/api/chat", {
             method: "POST",
             headers,
-            body: JSON.stringify({ message }),
+            body: JSON.stringify(payload),
             signal: controller.signal
           });
 
           clearTimeout(timeoutId);
 
+          if (res.status === 429) {
+            let txt = "Bạn gửi hơi nhanh 😅 Chờ vài giây rồi thử lại nhé.";
+            try {
+              const data429 = await res.json();
+              if (data429 && data429.reply) txt = data429.reply;
+            } catch (e) { }
+            aiAppend(txt, "bot");
+            return;
+          }
+
           if (!res.ok) throw new Error("HTTP " + res.status);
 
           const data = await res.json();
-          const reply = data && data.reply ? data.reply : "Mình chưa trả lời được, bạn thử lại nhé.";
+          const reply = (data && data.reply) ? data.reply : "Mình chưa trả lời được, bạn thử lại nhé.";
           aiAppend(reply, "bot");
 
         } catch (err) {
@@ -322,5 +479,3 @@
         }
       }
     </script>
-
-    <!-- ====== END AI CHAT WIDGET ====== -->

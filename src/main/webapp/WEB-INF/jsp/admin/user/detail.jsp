@@ -17,9 +17,9 @@
 
                 <div id="layoutSidenav_content">
                     <main>
-                        <div class="container-fluid px-4">
+                        <div class="container-fluid px-3">
 
-                            <h1 class="mt-4">User Detail</h1>
+                            <h1 class="mt-3">User Detail ID:${id}</h1>
                             <hr />
 
                             <div class="card" style="width:60%">

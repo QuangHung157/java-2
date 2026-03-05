@@ -30,11 +30,9 @@ public class DataInitializer {
 
         return args -> {
 
-            // 1️⃣ Ensure roles
             Role adminRole = getOrCreateRole(roleRepository, "ADMIN", "System administrator");
             getOrCreateRole(roleRepository, "USER", "Normal user");
 
-            // 2️⃣ Normalize email
             String email = normalizeEmail(adminEmail);
 
             User admin = userRepository
@@ -51,7 +49,7 @@ public class DataInitializer {
                 userRepository.save(admin);
                 System.out.println("✅ ADMIN created: " + email);
             } else if (!"ADMIN".equals(admin.getRole().getName())) {
-                // 3️⃣ Ensure admin always has ADMIN role
+
                 admin.setRole(adminRole);
                 userRepository.save(admin);
                 System.out.println("✅ Existing user upgraded to ADMIN: " + email);

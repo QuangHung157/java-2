@@ -13,6 +13,7 @@ import com.example.laptop.service.UploadService;
 import com.example.laptop.service.UserService;
 
 @Controller
+@RequestMapping("/admin/user")
 public class UserController {
 
     private final UserService userService;
@@ -27,88 +28,101 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @RequestMapping("/admin/user")
-    public String getUserPage(Model model) {
-        List<User> users = this.userService.getAllUsers();
+    // =========================
+    // LIST + SEARCH
+    // =========================
+    @GetMapping
+    public String getUserPage(Model model,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+
+        List<User> users = userService.searchUsersByName(keyword);
+
         model.addAttribute("users1", users);
+        model.addAttribute("keyword", keyword == null ? "" : keyword);
+
         return "admin/user/show";
     }
 
-    @RequestMapping("/admin/user/{id}")
+    // =========================
+    // DETAIL
+    // =========================
+    @GetMapping("/{id}")
     public String getUserDetailPage(Model model, @PathVariable long id) {
-        User user = this.userService.getUserById(id);
+        User user = userService.getUserById(id);
         model.addAttribute("user", user);
         model.addAttribute("id", id);
         return "admin/user/detail";
     }
 
-    @GetMapping("/admin/user/create")
+    // =========================
+    // CREATE
+    // =========================
+    @GetMapping("/create")
     public String createUserPage(Model model) {
         model.addAttribute("newUser", new User());
         return "admin/user/create";
     }
 
-    @PostMapping("/admin/user/create")
+    @PostMapping("/create")
     public String postCreateUser(@ModelAttribute("newUser") User newUser,
             @RequestParam("File") MultipartFile file) {
 
-        // ✅ 0) check email exists (không crash)
         if (newUser.getEmail() != null && userService.existsByEmail(newUser.getEmail())) {
             return "redirect:/admin/user/create?error=email-exists";
         }
 
-        // ✅ 1) Upload avatar (optional)
         if (file != null && !file.isEmpty()) {
-            String avatar = this.uploadService.handleSaveUploadFile(file, "avatar");
+            String avatar = uploadService.handleSaveUploadFile(file, "avatar");
             newUser.setAvatar(avatar);
         }
 
-        // ✅ 2) Hash password
-        newUser.setPassword(this.passwordEncoder.encode(newUser.getPassword()));
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
-        // ✅ 3) Set role theo name
         if (newUser.getRole() != null && newUser.getRole().getName() != null) {
-            newUser.setRole(this.userService.getRoleByName(newUser.getRole().getName()));
+            newUser.setRole(userService.getRoleByName(newUser.getRole().getName()));
         }
 
-        // ✅ 4) Save
-        this.userService.handleSaveUser(newUser);
+        userService.handleSaveUser(newUser);
         return "redirect:/admin/user";
     }
 
-    @GetMapping("/admin/user/update/{id}")
+    // =========================
+    // UPDATE
+    // =========================
+    @GetMapping("/update/{id}")
     public String getUpdateUserPage(Model model, @PathVariable long id) {
-        User currentUser = this.userService.getUserById(id);
+        User currentUser = userService.getUserById(id);
         model.addAttribute("newUser", currentUser);
         return "admin/user/update";
     }
 
-    @PostMapping("/admin/user/update")
+    @PostMapping("/update")
     public String postUpdateUser(@ModelAttribute("newUser") User formUser) {
 
-        User currentUser = this.userService.getUserById(formUser.getId());
-
+        User currentUser = userService.getUserById(formUser.getId());
         if (currentUser != null) {
             currentUser.setAddress(formUser.getAddress());
             currentUser.setFullName(formUser.getFullName());
             currentUser.setPhone(formUser.getPhone());
-
-            this.userService.handleSaveUser(currentUser);
+            userService.handleSaveUser(currentUser);
         }
 
         return "redirect:/admin/user";
     }
 
-    @GetMapping("/admin/user/delete/{id}")
+    // =========================
+    // DELETE
+    // =========================
+    @GetMapping("/delete/{id}")
     public String getDeleteUserPage(Model model, @PathVariable long id) {
         model.addAttribute("id", id);
         model.addAttribute("newUser", new User());
         return "admin/user/delete";
     }
 
-    @PostMapping("/admin/user/delete")
+    @PostMapping("/delete")
     public String postDeleteUser(@ModelAttribute("newUser") User formUser) {
-        this.userService.deleteAUser(formUser.getId());
+        userService.deleteAUser(formUser.getId());
         return "redirect:/admin/user";
     }
 }

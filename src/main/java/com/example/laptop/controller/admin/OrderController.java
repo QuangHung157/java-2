@@ -1,6 +1,7 @@
 package com.example.laptop.controller.admin;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +15,10 @@ import com.example.laptop.service.OrderService;
 public class OrderController {
 
     private final OrderService orderService;
+
+    // ✅ chỉ cho phép các status chuẩn
+    private static final Set<String> ALLOWED_STATUS = Set.of(
+            "NEW", "CONFIRMED", "SHIPPING", "DONE", "CANCELED");
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
@@ -50,7 +55,16 @@ public class OrderController {
     @PostMapping("/admin/order/update")
     public String postUpdateOrderStatus(@RequestParam("id") long id,
             @RequestParam("status") String status) {
-        orderService.updateOrderStatus(id, status);
+
+        String normalized = (status == null) ? "" : status.trim().toUpperCase();
+        if (!ALLOWED_STATUS.contains(normalized)) {
+
+            return "redirect:/admin/order/" + id;
+        }
+
+        // ✅ update theo business chuẩn (CONFIRMED trừ kho 1 lần, DONE => PAID)
+        orderService.updateOrderStatus(id, normalized);
+
         return "redirect:/admin/order/" + id;
     }
 

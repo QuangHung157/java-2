@@ -14,11 +14,7 @@
         <link href="/client/css/bootstrap.min.css" rel="stylesheet" />
         <link href="/client/css/style.css" rel="stylesheet" />
 
-        <style>
-          .auth-space {
-            margin-top: 50px;
-          }
-        </style>
+
       </head>
 
       <body>

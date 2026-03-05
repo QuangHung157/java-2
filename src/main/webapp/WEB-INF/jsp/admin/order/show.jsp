@@ -68,12 +68,14 @@
                                                             </td>
 
                                                             <td>
-                                                                <a href="/admin/order/${o.id}"
-                                                                    class="btn btn-success">View</a>
-                                                                <a href="/admin/order/update/${o.id}"
-                                                                    class="btn btn-warning">Update</a>
-                                                                <a href="/admin/order/delete/${o.id}"
-                                                                    class="btn btn-danger">Delete</a>
+                                                                <div class="d-flex gap-2 flex-nowrap">
+                                                                    <a href="/admin/order/${o.id}"
+                                                                        class="btn btn-success">View</a>
+                                                                    <a href="/admin/order/update/${o.id}"
+                                                                        class="btn btn-warning">Update</a>
+                                                                    <a href="/admin/order/delete/${o.id}"
+                                                                        class="btn btn-danger">Delete</a>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>

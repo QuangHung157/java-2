@@ -15,7 +15,7 @@ public class Order {
     private long id;
 
     // ✅ BigDecimal cho tiền
-    @Column(precision = 18, scale = 2)
+    @Column(precision = 18, scale = 2, nullable = false)
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
     // ===== Receiver info =====
@@ -26,18 +26,25 @@ public class Order {
     // PICKUP / DELIVERY
     private String shippingMethod;
 
-    // NEW / PENDING / CONFIRMED / SHIPPING / DONE / CANCELED
+    // NEW / CONFIRMED / SHIPPING / DONE / CANCELED
     private String status;
 
     private LocalDateTime createdAt;
 
-    // COD / VNPAY
+    // COD (nếu sau này muốn thêm BANK_TRANSFER thì thêm)
     private String paymentMethod;
 
-    // PENDING / PAID / FAILED
+    // UNPAID / PAID
     private String paymentStatus;
 
-    private String vnpTransactionNo;
+    /**
+     * ✅ Production-safe:
+     * Tránh trừ kho nhiều lần khi admin update status qua lại.
+     * - stockApplied=false: chưa trừ kho
+     * - stockApplied=true: đã trừ kho (idempotent)
+     */
+    @Column(nullable = false)
+    private boolean stockApplied = false;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -52,12 +59,16 @@ public class Order {
 
         if (this.status == null || this.status.isBlank())
             this.status = "NEW";
+
         if (this.shippingMethod == null || this.shippingMethod.isBlank())
             this.shippingMethod = "DELIVERY";
+
         if (this.paymentMethod == null || this.paymentMethod.isBlank())
             this.paymentMethod = "COD";
+
+        // ✅ COD thực tế: tạo đơn thì chưa thu tiền
         if (this.paymentStatus == null || this.paymentStatus.isBlank())
-            this.paymentStatus = "PENDING";
+            this.paymentStatus = "UNPAID";
 
         if (this.totalPrice == null)
             this.totalPrice = BigDecimal.ZERO;
@@ -77,7 +88,7 @@ public class Order {
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
+        this.totalPrice = (totalPrice == null) ? BigDecimal.ZERO : totalPrice;
     }
 
     public String getReceiverName() {
@@ -144,12 +155,12 @@ public class Order {
         this.paymentStatus = paymentStatus;
     }
 
-    public String getVnpTransactionNo() {
-        return vnpTransactionNo;
+    public boolean isStockApplied() {
+        return stockApplied;
     }
 
-    public void setVnpTransactionNo(String vnpTransactionNo) {
-        this.vnpTransactionNo = vnpTransactionNo;
+    public void setStockApplied(boolean stockApplied) {
+        this.stockApplied = stockApplied;
     }
 
     public User getUser() {

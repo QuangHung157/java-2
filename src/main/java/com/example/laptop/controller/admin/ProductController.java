@@ -51,7 +51,6 @@ public class ProductController {
             @ModelAttribute("newProduct") Product product,
             @RequestParam("File") MultipartFile file) {
 
-        // frontend đã validate required => backend chỉ xử lý logic
         if (file != null && !file.isEmpty()) {
             String image = this.uploadService.handleSaveUploadFile(file, "product");
             product.setImage(image);

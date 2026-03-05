@@ -51,12 +51,16 @@
                                                 <h2>Update Product</h2>
                                                 <hr />
 
-                                                <!-- IMPORTANT: modelAttribute PHẢI là newProduct -->
+
                                                 <form:form method="post" action="/admin/product/update"
                                                     modelAttribute="newProduct" enctype="multipart/form-data"
                                                     class="row needs-validation" novalidate="novalidate">
 
-                                                    <!-- id hidden -->
+
+                                                    <input type="hidden" name="${_csrf.parameterName}"
+                                                        value="${_csrf.token}" />
+
+
                                                     <div style="display:none">
                                                         <form:input path="id" />
                                                     </div>
@@ -65,21 +69,26 @@
                                                         <label class="form-label">Name</label>
                                                         <form:input path="name" type="text" class="form-control"
                                                             required="required" />
-                                                        <div class="invalid-feedback">Please enter product name.</div>
+                                                        <div class="invalid-feedback">
+                                                            Please enter product name.
+                                                        </div>
                                                     </div>
 
                                                     <div class="mb-3 col-12 col-md-6">
                                                         <label class="form-label">Price</label>
                                                         <form:input path="price" type="number" class="form-control"
                                                             min="0" step="0.01" required="required" />
-                                                        <div class="invalid-feedback">Please enter a valid price.</div>
+                                                        <div class="invalid-feedback">
+                                                            Please enter a valid price.
+                                                        </div>
                                                     </div>
 
                                                     <div class="mb-3 col-12">
                                                         <label class="form-label">Detail description</label>
                                                         <form:textarea path="detailDesc" class="form-control" rows="4"
                                                             required="required" />
-                                                        <div class="invalid-feedback">Please enter detail description.
+                                                        <div class="invalid-feedback">
+                                                            Please enter detail description.
                                                         </div>
                                                     </div>
 
@@ -87,7 +96,8 @@
                                                         <label class="form-label">Short description</label>
                                                         <form:input path="shortDesc" type="text" class="form-control"
                                                             required="required" />
-                                                        <div class="invalid-feedback">Please enter short description.
+                                                        <div class="invalid-feedback">
+                                                            Please enter short description.
                                                         </div>
                                                     </div>
 
@@ -95,7 +105,8 @@
                                                         <label class="form-label">Quantity</label>
                                                         <form:input path="quantity" type="number" class="form-control"
                                                             min="0" step="1" required="required" />
-                                                        <div class="invalid-feedback">Please enter a valid quantity.
+                                                        <div class="invalid-feedback">
+                                                            Please enter a valid quantity.
                                                         </div>
                                                     </div>
 
@@ -111,7 +122,9 @@
                                                             <form:option value="LENOVO">Lenovo</form:option>
                                                             <form:option value="LG">LG</form:option>
                                                         </form:select>
-                                                        <div class="invalid-feedback">Please choose a factory.</div>
+                                                        <div class="invalid-feedback">
+                                                            Please choose a factory.
+                                                        </div>
                                                     </div>
 
                                                     <div class="mb-3 col-12 col-md-6">
@@ -127,20 +140,24 @@
                                                             <form:option value="MONG-NHE">Thin & Light</form:option>
                                                             <form:option value="DOANH-NHAN">Business</form:option>
                                                         </form:select>
-                                                        <div class="invalid-feedback">Please choose a target.</div>
-                                                    </div>
-
-                                                    <!-- Upload image: KHÔNG required (vì update có thể giữ ảnh cũ) -->
-                                                    <div class="mb-3 col-12 col-md-6">
-                                                        <label for="avatarFile" class="form-label">Image
-                                                            (optional)</label>
-                                                        <input class="form-control" type="file" id="avatarFile"
-                                                            name="File" accept=".png,.jpg,.jpeg" />
-                                                        <div class="form-text">Leave blank to keep the current image.
+                                                        <div class="invalid-feedback">
+                                                            Please choose a target.
                                                         </div>
                                                     </div>
 
-                                                    <!-- Preview: ưu tiên ảnh hiện có -->
+
+                                                    <div class="mb-3 col-12 col-md-6">
+                                                        <label for="avatarFile" class="form-label">
+                                                            Image (optional)
+                                                        </label>
+                                                        <input class="form-control" type="file" id="avatarFile"
+                                                            name="File" accept=".png,.jpg,.jpeg" />
+                                                        <div class="form-text">
+                                                            Leave blank to keep the current image.
+                                                        </div>
+                                                    </div>
+
+
                                                     <div class="mb-3 col-12">
                                                         <c:if test="${not empty newProduct.image}">
                                                             <img id="imagePreview"
@@ -156,8 +173,12 @@
                                                     </div>
 
                                                     <div class="mb-4 col-12">
-                                                        <button type="submit" class="btn btn-warning">Update</button>
-                                                        <a href="/admin/product" class="btn btn-secondary ms-2">Back</a>
+                                                        <button type="submit" class="btn btn-warning">
+                                                            Update
+                                                        </button>
+                                                        <a href="/admin/product" class="btn btn-secondary ms-2">
+                                                            Back
+                                                        </a>
                                                     </div>
 
                                                 </form:form>
@@ -176,7 +197,7 @@
                         crossorigin="anonymous"></script>
                     <script src="/js/scripts.js"></script>
 
-                    <!-- Bootstrap validate -->
+
                     <script>
                         (() => {
                             'use strict';

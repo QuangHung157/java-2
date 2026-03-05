@@ -45,7 +45,7 @@ public class CartController {
         String email = currentEmail();
 
         List<CartDetail> cartDetails = cartService.getCartDetailsByEmail(email);
-        BigDecimal totalPrice = cartService.calcTotalPrice(cartDetails); // ✅ BigDecimal
+        BigDecimal totalPrice = cartService.calcTotalPrice(cartDetails);
 
         model.addAttribute("cartDetails", cartDetails);
         model.addAttribute("totalPrice", totalPrice);
@@ -96,7 +96,7 @@ public class CartController {
         if (cartDetails.isEmpty())
             return "redirect:/cart";
 
-        BigDecimal totalPrice = cartService.calcTotalPrice(cartDetails); // ✅ BigDecimal
+        BigDecimal totalPrice = cartService.calcTotalPrice(cartDetails);
 
         model.addAttribute("cartDetails", cartDetails);
         model.addAttribute("totalPrice", totalPrice);
@@ -106,17 +106,17 @@ public class CartController {
     }
 
     /**
-     * ✅ Checkout submit:
-     * - COD: create order then go to /thanks
-     * - VNPAY: create order then redirect to /payment/vnpay/create?orderId=xxx
+     * ✅ POST /place-order (LUỒNG CHUẨN)
+     * - tạo Order trong DB
+     * - COD: redirect /thanks?orderId=...
+     * - VNPAY: redirect /payment/vnpay/create?orderId=...
      */
     @PostMapping("/place-order")
     public String placeOrder(
             @RequestParam("receiverName") String receiverName,
-            @RequestParam(value = "receiverAddress", required = false) String receiverAddress,
+            @RequestParam(value = "receiverAddress", required = false, defaultValue = "") String receiverAddress,
             @RequestParam("receiverPhone") String receiverPhone,
             @RequestParam("shippingMethod") String shippingMethod,
-            @RequestParam("paymentMethod") String paymentMethod,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
@@ -129,13 +129,12 @@ public class CartController {
         }
 
         try {
-            Order order = orderService.placeUserOrder(
+            Order order = orderService.placeUserOrderCOD(
                     user,
                     receiverName,
                     receiverAddress,
                     receiverPhone,
-                    shippingMethod,
-                    paymentMethod);
+                    shippingMethod);
 
             if (order == null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Cart is empty.");
@@ -143,12 +142,7 @@ public class CartController {
             }
 
             session.setAttribute("sum", 0);
-
-            if ("COD".equalsIgnoreCase(paymentMethod)) {
-                return "redirect:/thanks?id=" + order.getId();
-            }
-
-            return "redirect:/payment/vnpay/create?orderId=" + order.getId();
+            return "redirect:/thanks?orderId=" + order.getId();
 
         } catch (OutOfStockException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -160,8 +154,11 @@ public class CartController {
         }
     }
 
+    /**
+     * ✅ /thanks dùng chung param orderId (COD + VNPAY)
+     */
     @GetMapping("/thanks")
-    public String thanks(Model model, @RequestParam("id") long orderId, RedirectAttributes ra) {
+    public String thanks(Model model, @RequestParam("orderId") long orderId, RedirectAttributes ra) {
 
         String email = currentEmail();
 
@@ -183,4 +180,21 @@ public class CartController {
 
         return "client/cart/thanks";
     }
+
+    // ✅ ORDER HISTORY (User)
+    @GetMapping("/history")
+    public String orderHistory(Model model) {
+
+        String email = currentEmail();
+        User user = userService.getUserByEmail(email);
+        if (user == null)
+            return "redirect:/login";
+
+        // lấy danh sách order của user
+        List<Order> orders = orderService.getOrdersByUserId(user.getId());
+
+        model.addAttribute("orders", orders);
+        return "client/cart/history";
+    }
+
 }

@@ -10,4 +10,7 @@ import com.example.laptop.domain.OrderDetail;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
     List<OrderDetail> findByOrderId(long orderId);
+
+    void deleteByOrderId(Long orderId);
+
 }

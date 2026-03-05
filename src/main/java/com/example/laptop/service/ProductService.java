@@ -91,4 +91,10 @@ public class ProductService {
 
         return productRepository.findAll(spec, pageable);
     }
+
+    public Page<Product> searchByName(String trim, Pageable pageable) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'searchByName'");
+    }
+
 }

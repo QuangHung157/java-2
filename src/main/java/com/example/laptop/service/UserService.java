@@ -6,9 +6,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.laptop.domain.Cart;
+import com.example.laptop.domain.Order;
 import com.example.laptop.domain.Role;
 import com.example.laptop.domain.User;
 import com.example.laptop.domain.dto.RegisterDTO;
+import com.example.laptop.repository.CartDetailRepository;
+import com.example.laptop.repository.CartRepository;
+import com.example.laptop.repository.OrderDetailRepository;
+import com.example.laptop.repository.OrderRepository;
 import com.example.laptop.repository.RoleRepository;
 import com.example.laptop.repository.UserRepository;
 
@@ -19,46 +25,94 @@ public class UserService {
    private final RoleRepository roleRepository;
    private final PasswordEncoder passwordEncoder;
 
-   public UserService(UserRepository userRepository,
+   // ✅ thêm để xóa sạch theo user
+   private final CartRepository cartRepository;
+   private final CartDetailRepository cartDetailRepository;
+   private final OrderRepository orderRepository;
+   private final OrderDetailRepository orderDetailRepository;
+
+   public UserService(
+         UserRepository userRepository,
          RoleRepository roleRepository,
-         PasswordEncoder passwordEncoder) {
+         PasswordEncoder passwordEncoder,
+         CartRepository cartRepository,
+         CartDetailRepository cartDetailRepository,
+         OrderRepository orderRepository,
+         OrderDetailRepository orderDetailRepository) {
+
       this.userRepository = userRepository;
       this.roleRepository = roleRepository;
       this.passwordEncoder = passwordEncoder;
+
+      this.cartRepository = cartRepository;
+      this.cartDetailRepository = cartDetailRepository;
+      this.orderRepository = orderRepository;
+      this.orderDetailRepository = orderDetailRepository;
    }
 
    public List<User> getAllUsers() {
-      return this.userRepository.findAll();
-   }
-
-   public User handleSaveUser(User user) {
-      return this.userRepository.save(user);
+      return userRepository.findAll();
    }
 
    public User getUserById(long id) {
-      return this.userRepository.findById(id).orElse(null);
+      return userRepository.findById(id).orElse(null);
    }
 
-   public void deleteAUser(long id) {
-      this.userRepository.deleteById(id);
+   public User handleSaveUser(User user) {
+      return userRepository.save(user);
    }
 
+   // =========================
+   // SEARCH (admin)
+   // =========================
+   public List<User> searchUsersByName(String keyword) {
+      if (keyword == null || keyword.trim().isBlank()) {
+         return getAllUsers();
+      }
+      return userRepository.findByFullNameContainingIgnoreCase(keyword.trim());
+   }
+
+   // =========================
+   // DELETE USER (demo: delete all data)
+   // =========================
+   @Transactional
+   public void deleteAUser(long userId) {
+
+      // 1) Xóa OrderDetail -> Order
+      List<Order> orders = orderRepository.findByUserId(userId);
+      if (orders != null && !orders.isEmpty()) {
+         for (Order o : orders) {
+            orderDetailRepository.deleteByOrderId(o.getId());
+         }
+         orderRepository.deleteAll(orders);
+      }
+
+      // 2) Xóa CartDetail -> Cart
+      Cart cart = cartRepository.findByUserId(userId).orElse(null);
+      if (cart != null) {
+         cartDetailRepository.deleteByCartId(cart.getId());
+         cartRepository.delete(cart);
+      }
+
+      // 3) Xóa User
+      userRepository.deleteById(userId);
+   }
+
+   // =========================
+   // ROLE / EMAIL HELPERS
+   // =========================
    public Role getRoleByName(String name) {
-      return this.roleRepository.findByName(name);
+      return roleRepository.findByName(name);
    }
 
    public boolean existsByEmail(String email) {
       String normalized = normalizeEmail(email);
-      if (normalized == null)
-         return false;
-      return this.userRepository.existsByEmail(normalized);
+      return normalized != null && userRepository.existsByEmail(normalized);
    }
 
    public User getUserByEmail(String email) {
       String normalized = normalizeEmail(email);
-      if (normalized == null)
-         return null;
-      return this.userRepository.findFirstByEmailOrderByIdAsc(normalized).orElse(null);
+      return normalized == null ? null : userRepository.findFirstByEmailOrderByIdAsc(normalized).orElse(null);
    }
 
    private String normalizeEmail(String email) {
@@ -69,21 +123,19 @@ public class UserService {
    }
 
    /**
-    * ✅ Production-ready register:
+    * register:
     * - normalize email
-    * - check duplicate in service (double check)
+    * - check duplicate
     * - encode password
-    * - set role USER (must exist)
+    * - set role USER
     */
    @Transactional
    public User registerUser(RegisterDTO dto) {
 
       String email = normalizeEmail(dto.getEmail());
-      if (email == null) {
+      if (email == null)
          throw new IllegalArgumentException("Email is required");
-      }
 
-      // double-check duplicate (an toàn hơn cho production)
       if (userRepository.existsByEmail(email)) {
          throw new IllegalStateException("Email already exists");
       }

@@ -24,7 +24,6 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        // ✅ ưu tiên quay lại trang trước nếu bị chặn (add-to-cart/checkout)
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();

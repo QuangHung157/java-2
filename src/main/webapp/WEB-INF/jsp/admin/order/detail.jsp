@@ -73,18 +73,22 @@
                                                     </thead>
                                                     <tbody>
                                                         <c:forEach var="d" items="${details}">
-                                                            <tr>
-                                                                <td>${d.product.name}</td>
-                                                                <td>
-                                                                    <fmt:formatNumber type="number"
-                                                                        value="${d.price}" /> đ
-                                                                </td>
-                                                                <td>${d.quantity}</td>
-                                                                <td>
-                                                                    <fmt:formatNumber type="number"
-                                                                        value="${d.price * d.quantity}" /> đ
-                                                                </td>
-                                                            </tr>
+                                                            <%-- ✅ BigDecimal subtotal đúng chuẩn --%>
+                                                                <c:set var="sub"
+                                                                    value="${d.price.multiply(d.quantity)}" />
+
+                                                                <tr>
+                                                                    <td>${d.product.name}</td>
+                                                                    <td>
+                                                                        <fmt:formatNumber type="number"
+                                                                            value="${d.price}" /> đ
+                                                                    </td>
+                                                                    <td>${d.quantity}</td>
+                                                                    <td>
+                                                                        <fmt:formatNumber type="number"
+                                                                            value="${sub}" /> đ
+                                                                    </td>
+                                                                </tr>
                                                         </c:forEach>
 
                                                         <c:if test="${empty details}">

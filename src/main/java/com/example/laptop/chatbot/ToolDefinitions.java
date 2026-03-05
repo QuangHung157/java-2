@@ -7,58 +7,47 @@ public class ToolDefinitions {
 
         public static List<Map<String, Object>> tools() {
                 return List.of(
-                                fn("countByFactory",
-                                                "Đếm số laptop theo hãng (field factory). Ví dụ: Acer, Dell, Asus, HP, Lenovo.",
+                                fn("searchProducts",
+                                                "Tìm laptop theo tiêu chí: mục đích (target), hãng (factory), khoảng giá, từ khóa. Dùng cho tư vấn mua laptop.",
                                                 obj(
                                                                 Map.of(
-                                                                                "factory", Map.of(
-                                                                                                "type", "string",
-                                                                                                "description",
-                                                                                                "Tên hãng, ví dụ: Acer")),
-                                                                List.of("factory"))),
+                                                                                "query",
+                                                                                Map.of("type", "string", "description",
+                                                                                                "Từ khóa tự do, ví dụ: 'mỏng nhẹ', 'pin trâu'"),
+                                                                                "factory",
+                                                                                Map.of("type", "string", "description",
+                                                                                                "Hãng: Acer/Dell/Asus/HP/Lenovo/MSI/Apple..."),
+                                                                                "target",
+                                                                                Map.of("type", "string", "description",
+                                                                                                "Mục đích theo DB, ví dụ: SINHVIEN-VANPHONG, GAMING..."),
+                                                                                "minPrice",
+                                                                                Map.of("type", "number", "description",
+                                                                                                "Giá tối thiểu (VND)"),
+                                                                                "maxPrice",
+                                                                                Map.of("type", "number", "description",
+                                                                                                "Giá tối đa (VND)"),
+                                                                                "sort",
+                                                                                Map.of("type", "string", "description",
+                                                                                                "price_asc|price_desc|sold_desc"),
+                                                                                "limit",
+                                                                                Map.of("type", "integer", "description",
+                                                                                                "Số lượng trả về (1-10), default 5")),
+                                                                List.of())),
 
                                 fn("cheapestProduct",
                                                 "Lấy sản phẩm rẻ nhất trong toàn shop.",
                                                 obj(Map.of(), List.of())),
 
-                                fn("cheapestByFactory",
-                                                "Lấy sản phẩm rẻ nhất theo hãng (factory).",
-                                                obj(
-                                                                Map.of(
-                                                                                "factory", Map.of(
-                                                                                                "type", "string",
-                                                                                                "description",
-                                                                                                "Tên hãng, ví dụ: Acer")),
-                                                                List.of("factory"))),
-
-                                fn("recommendByTarget",
-                                                "Gợi ý laptop theo mục đích (field target) như GAMING/OFFICE/STUDY/DESIGN.",
-                                                obj(
-                                                                Map.of(
-                                                                                "target", Map.of(
-                                                                                                "type", "string",
-                                                                                                "description",
-                                                                                                "Mục đích, ví dụ: GAMING")),
-                                                                List.of("target"))),
-
-                                fn("productsUnderPrice",
-                                                "Gợi ý laptop dưới hoặc bằng mức giá (VND).",
-                                                obj(
-                                                                Map.of(
-                                                                                "maxPrice", Map.of(
-                                                                                                "type", "number",
-                                                                                                "description",
-                                                                                                "Giá tối đa (VND), ví dụ: 20000000")),
-                                                                List.of("maxPrice"))),
+                                fn("mostExpensiveProduct",
+                                                "Lấy sản phẩm đắt nhất trong toàn shop.",
+                                                obj(Map.of(), List.of())),
 
                                 fn("orderStatus",
                                                 "Tra cứu đơn hàng theo orderId (chỉ cho user đang đăng nhập và đơn thuộc user).",
-                                                obj(
-                                                                Map.of(
-                                                                                "orderId", Map.of(
-                                                                                                "type", "integer",
-                                                                                                "description",
-                                                                                                "Mã đơn hàng, ví dụ: 12")),
+                                                obj(Map.of(
+                                                                "orderId",
+                                                                Map.of("type", "integer", "description",
+                                                                                "Mã đơn hàng, ví dụ: 12")),
                                                                 List.of("orderId"))));
         }
 
@@ -75,9 +64,6 @@ public class ToolDefinitions {
                 return Map.of(
                                 "type", "object",
                                 "properties", properties,
-                                "required", required
-                // ❌ bỏ additionalProperties
-                );
+                                "required", required);
         }
-
 }

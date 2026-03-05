@@ -13175,3 +13175,31 @@ body {
   font-size: 0.75rem;
   border-radius: 0.375rem !important;
 }
+
+/* Resgister */
+.auth-space {
+  margin-top: 50px;
+}
+
+/* Thanks  */
+.bill-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #81c408;
+  padding: 15px 20px;
+  border-radius: 10px 10px 0 0;
+  font-weight: bold;
+  color: #45595b;
+}
+
+.bill-body {
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+}
+
+.order-info-label {
+  color: #747d88;
+  font-size: 0.9rem;
+}

@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
@@ -29,7 +28,7 @@ public class SecurityConfiguration {
                 return new BCryptPasswordEncoder();
         }
 
-        // ✅ Spring Session Remember-me service
+        // ✅ Spring Session Remember-me service (auto remember theo ý bạn)
         @Bean
         public SpringSessionRememberMeServices rememberMeServices() {
                 SpringSessionRememberMeServices services = new SpringSessionRememberMeServices();
@@ -41,36 +40,53 @@ public class SecurityConfiguration {
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
                 http
-                                // ✅ CSRF bật (đúng production)
-                                .csrf(Customizer.withDefaults())
-                                // nếu bạn muốn test Postman/curl cho /api/chat thì mở dòng dưới:
-                                // .csrf(csrf -> csrf.ignoringRequestMatchers("/api/chat"))
+                                // CSRF vẫn bật cho toàn bộ web
+
+                                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                                                "/api/chat",
+                                                "/payment/vnpay/ipn"))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/payment/vnpay/return", "/payment/vnpay/ipn")
+                                                .permitAll()
+
+                                )
 
                                 .authorizeHttpRequests(auth -> auth
+                                                // forward/include cho JSP
                                                 .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE)
                                                 .permitAll()
+
+                                                // static resources
                                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                                                 .permitAll()
                                                 .requestMatchers("/css/**", "/js/**", "/images/**", "/client/**")
                                                 .permitAll()
 
-                                                .requestMatchers("/", "/products", "/product/**",
+                                                // public pages
+                                                .requestMatchers(
+                                                                "/", "/products", "/product/**",
                                                                 "/login", "/register",
                                                                 "/access-denied", "/error")
                                                 .permitAll()
 
-                                                // ✅ AI chatbot API: cho guest dùng
+                                                // chatbot API (public)
                                                 .requestMatchers("/api/chat").permitAll()
 
+                                                // admin
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                                                .requestMatchers("/add-product-to-cart/**", "/cart/**",
-                                                                "/checkout", "/place-order", "/thanks")
+                                                // user flows cần login
+                                                .requestMatchers(
+                                                                "/add-product-to-cart/**",
+                                                                "/cart/**",
+                                                                "/checkout",
+                                                                "/place-order",
+                                                                "/thanks")
                                                 .authenticated()
 
                                                 .anyRequest().authenticated())
 
-                                // ✅ Session management (gộp 1 block cho sạch)
+                                // session management
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                                                 .invalidSessionUrl("/login?expired")
@@ -78,8 +94,10 @@ public class SecurityConfiguration {
                                                 .maximumSessions(1)
                                                 .maxSessionsPreventsLogin(false))
 
+                                // remember-me
                                 .rememberMe(r -> r.rememberMeServices(rememberMeServices()))
 
+                                // login
                                 .formLogin(form -> form
                                                 .loginPage("/login")
                                                 .loginProcessingUrl("/login")
@@ -87,12 +105,13 @@ public class SecurityConfiguration {
                                                 .failureUrl("/login?error=true")
                                                 .permitAll())
 
+                                // logout
                                 .logout(logout -> logout
                                                 .logoutUrl("/logout")
                                                 .logoutSuccessUrl("/")
                                                 .invalidateHttpSession(true)
                                                 .clearAuthentication(true)
-                                                .deleteCookies("JSESSIONID")
+                                                .deleteCookies("JSESSIONID", "SESSION")
                                                 .permitAll())
 
                                 .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"));

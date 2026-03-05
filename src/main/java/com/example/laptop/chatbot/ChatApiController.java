@@ -14,13 +14,14 @@ public class ChatApiController {
 
     private final ChatOrchestrator orchestrator;
     private final UserRepository userRepo;
+    private final SimpleRateLimiter limiter;
 
-    public ChatApiController(ChatOrchestrator orchestrator, UserRepository userRepo) {
+    public ChatApiController(ChatOrchestrator orchestrator, UserRepository userRepo, SimpleRateLimiter limiter) {
         this.orchestrator = orchestrator;
         this.userRepo = userRepo;
+        this.limiter = limiter;
     }
 
-    // Frontend POST JSON: { "message": "..." }
     @PostMapping("/chat")
     public ResponseEntity<?> chat(@RequestBody ChatRequest req, Principal principal) {
         String msg = (req == null || req.getMessage() == null) ? "" : req.getMessage().trim();
@@ -28,20 +29,35 @@ public class ChatApiController {
             return ResponseEntity.badRequest().body(new ChatResponse("Bạn nhập câu hỏi giúp mình nhé."));
         }
 
+        String sessionId = (req.getSessionId() == null || req.getSessionId().isBlank())
+                ? "anon"
+                : req.getSessionId().trim();
+
         Long userId = null;
+        String rateKey = "anon:" + sessionId;
+
         if (principal != null) {
             String email = principal.getName();
             User u = userRepo.findFirstByEmailOrderByIdAsc(email).orElse(null);
-            if (u != null)
+            if (u != null) {
                 userId = u.getId();
+                rateKey = "u:" + userId; // logged-in -> limit theo user
+            }
         }
 
-        String reply = orchestrator.chat(msg, userId);
+        // ✅ chặn spam: 8 req / 10s
+        if (!limiter.allow(rateKey, 8, 10_000)) {
+            return ResponseEntity.status(429)
+                    .body(new ChatResponse("Bạn gửi hơi nhanh 😅 Chờ vài giây rồi thử lại nhé."));
+        }
+
+        String reply = orchestrator.chat(msg, userId, sessionId);
         return ResponseEntity.ok(new ChatResponse(reply));
     }
 
     public static class ChatRequest {
         private String message;
+        private String sessionId;
 
         public String getMessage() {
             return message;
@@ -49,6 +65,14 @@ public class ChatApiController {
 
         public void setMessage(String message) {
             this.message = message;
+        }
+
+        public String getSessionId() {
+            return sessionId;
+        }
+
+        public void setSessionId(String sessionId) {
+            this.sessionId = sessionId;
         }
     }
 

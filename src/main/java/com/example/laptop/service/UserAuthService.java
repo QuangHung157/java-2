@@ -29,7 +29,6 @@ public class UserAuthService implements UserDetailsService {
                 ? user.getRole().getName().trim()
                 : "USER";
 
-        // chấp nhận cả "ADMIN" hoặc "ROLE_ADMIN"
         if (roleName.startsWith("ROLE_")) {
             roleName = roleName.substring("ROLE_".length());
         }
